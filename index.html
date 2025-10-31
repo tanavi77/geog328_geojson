@@ -1,8 +1,143 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Index</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>Pharmacy Map</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #map {
+      position: fixed;
+      inset: 0;               
+      width: 100%;
+      height: 100%;
+    }
+
+    #side-panel {
+      position: fixed;
+      left: 18px;
+      top: 18px;
+      width: 360px;
+      max-width: calc(100% - 36px);
+      height: calc(100% - 36px);
+      background: rgba(255,255,255,0.95); /* slightly transparent so map shows through */
+      box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+      border-radius: 8px;
+      overflow: auto;
+      padding: 16px;
+      z-index: 1000; /* ensure panel sits above the map */
+      backdrop-filter: blur(6px); /* subtle blur under panel (modern browsers) */
+    }
+
+    #side-panel h2 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+
+    #side-panel .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    #side-panel button {
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    #side-panel table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    #side-panel th, #side-panel td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #e6e6e6;
+    }
+    #side-panel tr:nth-child(even) td {
+      background: #fbfbfb;
+    }
+    #side-panel tr:hover td {
+      background: #eef6ff;
+    }
+    #side-panel thead th {
+      position: sticky;
+      top: 0;
+      background: rgba(255,255,255,0.96);
+      z-index: 2;
+    }
+
+    /* Small screens: make panel full width bottom sheet */
+    @media (max-width: 720px) {
+      #side-panel {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        top: auto;
+        height: 46%;
+        max-width: calc(100% - 24px);
+      }
+    }
+  </style>
+</head>
+
 <body>
-  <h1>Index page</h1>
-  <p><a href="earthquake.html">Earthquake map</a></p>
+  <div id="map"></div>
+
+  <aside id="side-panel" role="complementary" aria-label="Pharmacy list and controls">
+    <h2>Pharmacies — Seattle</h2>
+
+    <div class="controls">
+      <button id="sortBtn">Sort by Pharmacy Rating</button>
+      <button id="toggleAreas">Toggle Areas</button>
+    </div>
+
+    <table aria-describedby="pharm-list">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>name</th>
+          <th>address</th>
+          <th>rating</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+    <p style="margin-top:10px; font-size:12px; color:#666;">
+      Click a row to fly to the pharmacy. Click a polygon to see the neighborhood name.
+    </p>
+  </aside>
+
+  <script src="js/main.js"></script>
+
+  <script>
+    document.getElementById('toggleAreas').addEventListener('click', () => {
+      if (!window.map) return;
+      try {
+        const vis = map.getLayoutProperty('areas-fill', 'visibility');
+        const next = (vis === 'none' ? 'visible' : 'none');
+        map.setLayoutProperty('areas-fill', 'visibility', next);
+        map.setLayoutProperty('areas-outline', 'visibility', next);
+        map.setLayoutProperty('areas-label', 'visibility', next);
+      } catch (e) {
+        console.warn('Toggle areas: layers not found yet');
+      }
+    });
+  </script>
 </body>
 </html>
